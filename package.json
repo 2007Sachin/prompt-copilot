@@ -1,0 +1,43 @@
+{
+  "name": "promptcopilot",
+  "version": "1.0.0",
+  "description": "Advanced Prompt Engineering Workbench - PromptCopilot MVP",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/smoke-test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.1",
+    "@clerk/clerk-react": "^5.56.2",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.84.0",
+    "framer-motion": "^12.23.24",
+    "groq-sdk": "^0.36.0",
+    "lucide-react": "^0.344.0",
+    "openai": "^6.9.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.4"
+  }
+}

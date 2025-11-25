@@ -1,0 +1,354 @@
+{
+    "useCases": [
+        {
+            "id": "general",
+            "name": "General Assistant",
+            "description": "General purpose assistance and queries",
+            "template": "You are a helpful AI assistant. Your goal is to [[GOAL]].\n\nContext:\n[[CONTEXT]]"
+        },
+        {
+            "id": "coding",
+            "name": "Coding & Development",
+            "description": "Code generation, debugging, and architecture",
+            "template": "You are an expert software engineer. Your goal is to [[GOAL]].\n\nTechnical Context:\n[[CONTEXT]]\n\nConstraints:\n[[CONSTRAINTS]]"
+        },
+        {
+            "id": "writing",
+            "name": "Creative Writing",
+            "description": "Content creation, storytelling, and editing",
+            "template": "You are a creative writer and editor. Your goal is to [[GOAL]].\n\nTopic/Theme:\n[[CONTEXT]]\n\nTone/Style:\n[[PERSONA]]"
+        },
+        {
+            "id": "data",
+            "name": "Data Analysis",
+            "description": "Analyzing data, patterns, and statistics",
+            "template": "You are a data scientist. Your goal is to [[GOAL]].\n\nData Context:\n[[CONTEXT]]\n\nRequired Analysis:\n[[CONSTRAINTS]]"
+        },
+        {
+            "id": "business",
+            "name": "Business Strategy",
+            "description": "Business planning, marketing, and strategy",
+            "template": "You are a business strategist. Your goal is to [[GOAL]].\n\nBusiness Context:\n[[CONTEXT]]"
+        }
+    ],
+    "techniques": [
+        {
+            "id": "zero_shot",
+            "name": "Zero-Shot",
+            "category": "Basic",
+            "description": "Direct instruction without examples",
+            "template": "Instructions:\nRespond directly to the following request without preamble.\n\nRequest: [[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.7,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1000
+            }
+        },
+        {
+            "id": "few_shot",
+            "name": "Few-Shot",
+            "category": "Basic",
+            "description": "Provide examples to guide the model",
+            "template": "Instructions:\nFollow the pattern shown in the examples below.\n\nExamples:\n[[EXAMPLES]]\n\nTask:\n[[CONTEXT]]",
+            "supportsExamples": true,
+            "recommendedConfig": {
+                "temperature": 0.5,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1000
+            }
+        },
+        {
+            "id": "cot",
+            "name": "Chain of Thought (CoT)",
+            "category": "Reasoning",
+            "description": "Step-by-step reasoning before answering",
+            "template": "Instructions:\nThink through this step-by-step. First, explain your reasoning process, then provide the final answer.\n\nReasoning:\nLet's think step by step.\n1. [Analyze the request]\n2. [Break down the problem]\n3. [Solve each part]\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.2,
+                "topP": 0.9,
+                "topK": 40,
+                "maxTokens": 2000
+            }
+        },
+        {
+            "id": "role_prompting",
+            "name": "Role Prompting",
+            "category": "Persona",
+            "description": "Assign a specific persona to the model",
+            "template": "Role:\n[[ROLE]]\n\nInstructions:\nAdopt this persona fully. Use the tone, vocabulary, and perspective of this role.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.8,
+                "topP": 1,
+                "topK": 50,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "mega_prompt",
+            "name": "Mega Prompt",
+            "category": "Advanced",
+            "description": "Comprehensive instruction set for complex tasks",
+            "template": "### 1. ROLE & PERSONA ###\n[[ROLE]]\nYou are an expert in this field with decades of experience. You possess deep theoretical knowledge and practical application skills. Your tone should be professional, authoritative, yet accessible.\n\n### 2. CONTEXT & BACKGROUND ###\n[[CONTEXT]]\n\n### 3. CORE GOAL ###\n[[GOAL]]\n\n### 4. DETAILED CONSTRAINTS & GUIDELINES ###\n[[CONSTRAINTS]]\n- Maintain high accuracy and factual correctness.\n- Avoid generic advice; provide specific, actionable steps.\n- Use clear headings and bullet points for readability.\n\n### 5. OUTPUT FORMAT ###\n[[SCHEMA]]\n\n### 6. STEP-BY-STEP INSTRUCTIONS ###\nTo complete this task effectively, follow these steps:\n1.  **Analyze the Request**: deeply understand the user's intent and context.\n2.  **Structure the Response**: Plan the sections to ensure logical flow.\n3.  **Draft Content**: Write comprehensive content for each section, covering nuances and edge cases.\n4.  **Refine & Polish**: Review for clarity, tone, and adherence to constraints.\n5.  **Final Output**: Present the final result in the requested format.",
+            "supportsSchema": true,
+            "recommendedConfig": {
+                "temperature": 0.3,
+                "topP": 0.95,
+                "topK": 40,
+                "maxTokens": 4000
+            }
+        },
+        {
+            "id": "tree_of_thought",
+            "name": "Tree of Thoughts",
+            "category": "Reasoning",
+            "description": "Explore multiple reasoning paths",
+            "template": "Instructions:\nImagine three different experts are discussing this question. \nExpert 1: [Opinion/Approach]\nExpert 2: [Critique/Alternative]\nExpert 3: [Synthesis]\n\nEvaluate these different paths and conclude with the best solution.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.7,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 3000
+            }
+        },
+        {
+            "id": "ape_optimized",
+            "name": "APE Optimized",
+            "category": "Advanced",
+            "description": "Automatically optimized prompt structure",
+            "template": "You are an intelligent assistant. \n\nTask: [[CONTEXT]]\n\nLet's work this out in a step by step way to be sure we have the right answer.",
+            "recommendedConfig": {
+                "temperature": 0.5,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "self_consistency",
+            "name": "Self-Consistency",
+            "category": "Reasoning",
+            "description": "Generate multiple paths and aggregate",
+            "template": "Generate three distinct ways to approach this problem.\n\nPath 1:\nPath 2:\nPath 3:\n\nAnalyze the consistency between these paths and provide the most robust answer.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.8,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2500
+            }
+        },
+        {
+            "id": "generated_knowledge",
+            "name": "Generated Knowledge",
+            "category": "Knowledge",
+            "description": "Generate knowledge before answering",
+            "template": "Step 1: Generate 5 facts or principles relevant to this topic.\nStep 2: Use these facts to answer the question.\n\nTopic:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.4,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "least_to_most",
+            "name": "Least-to-Most",
+            "category": "Reasoning",
+            "description": "Break down complex problems into sub-problems",
+            "template": "To solve this complex problem, first break it down into smaller, easier sub-problems. Solve each sub-problem in order, then combine them for the final answer.\n\nProblem:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.3,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2000
+            }
+        },
+        {
+            "id": "critique_refine",
+            "name": "Critique & Refine",
+            "category": "Refinement",
+            "description": "Draft, critique, and improve",
+            "template": "Step 1: Write a draft response.\nStep 2: Critique the draft for accuracy, clarity, and completeness.\nStep 3: Write the final response incorporating the improvements.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.6,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2500
+            }
+        },
+        {
+            "id": "step_back",
+            "name": "Step-Back Prompting",
+            "category": "Reasoning",
+            "description": "Abstract the problem first",
+            "template": "Step 1: What is the underlying principle or concept behind this question?\nStep 2: Explain that principle.\nStep 3: Apply the principle to answer the specific question.\n\nQuestion:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.4,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "meta_cognitive",
+            "name": "Meta-Cognitive",
+            "category": "Reasoning",
+            "description": "Evaluate own thinking process",
+            "template": "Task: [[CONTEXT]]\n\nWhile solving this, monitor your own thinking. Ask yourself:\n- Am I making assumptions?\n- Is this logical?\n- Is there a better way?\n\nProvide your internal monologue along with the solution.",
+            "recommendedConfig": {
+                "temperature": 0.5,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2000
+            }
+        },
+        {
+            "id": "socratic",
+            "name": "Socratic Method",
+            "category": "Educational",
+            "description": "Teach by asking questions",
+            "template": "Do not give the answer directly. Instead, ask guiding questions to help the user discover the answer themselves.\n\nTopic:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.7,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "reverse_engineering",
+            "name": "Reverse Engineering",
+            "category": "Analysis",
+            "description": "Analyze output to find input",
+            "template": "Here is a piece of content: [[CONTEXT]]\n\nAnalyze it to determine:\n1. The likely prompt that generated it.\n2. The tone and style guidelines used.\n3. The underlying structure.",
+            "recommendedConfig": {
+                "temperature": 0.4,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "emotional_prompting",
+            "name": "Emotional Prompting",
+            "category": "Experimental",
+            "description": "Appeal to emotion for better performance",
+            "template": "This is very important to my career. I need you to do your absolute best work here. Take pride in your output.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.6,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "analogical",
+            "name": "Analogical Reasoning",
+            "category": "Reasoning",
+            "description": "Use analogies to solve problems",
+            "template": "Recall a relevant analogy or similar problem. Explain how it relates to the current task, then use it to derive the solution.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.7,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        },
+        {
+            "id": "tabular_chain",
+            "name": "Tabular Chain of Thought",
+            "category": "Structured",
+            "description": "Reasoning in table format",
+            "template": "Think through this step by step and present your reasoning in a table with columns: | Step | Reasoning | Conclusion |.\n\nTask:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.2,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2000
+            }
+        },
+        {
+            "id": "perspective_taking",
+            "name": "Perspective Taking",
+            "category": "Persona",
+            "description": "View from multiple angles",
+            "template": "Analyze this from the perspective of:\n1. A skeptic\n2. An optimist\n3. A realist\n\nSynthesize these views into a balanced conclusion.\n\nTopic:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.8,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 2000
+            }
+        },
+        {
+            "id": "recitation",
+            "name": "Recitation-Augmented",
+            "category": "Knowledge",
+            "description": "Recite relevant passages first",
+            "template": "Recite the relevant documentation or rules regarding this topic verbatim (or as close as possible), then apply them to the query.\n\nQuery:\n[[CONTEXT]]",
+            "recommendedConfig": {
+                "temperature": 0.2,
+                "topP": 1,
+                "topK": 40,
+                "maxTokens": 1500
+            }
+        }
+    ],
+    "lengthModes": [
+        {
+            "id": "short",
+            "name": "Short / Concise",
+            "description": "Brief and direct response",
+            "modifier": "Keep the response concise, under 200 words. Avoid fluff.",
+            "recommendedTokens": 300
+        },
+        {
+            "id": "medium",
+            "name": "Medium / Standard",
+            "description": "Balanced detail and length",
+            "modifier": "Provide a detailed response with sufficient explanation. Aim for 500-800 words.",
+            "recommendedTokens": 1000
+        },
+        {
+            "id": "mega",
+            "name": "Mega / Comprehensive",
+            "description": "Extensive, deep dive response",
+            "modifier": "Provide an exhaustive, comprehensive response. Cover all nuances, edge cases, and details. Use headings and structured sections. Aim for 1500+ words.",
+            "recommendedTokens": 4000
+        }
+    ],
+    "outputFormats": [
+        {
+            "id": "markdown",
+            "name": "Markdown",
+            "description": "Standard Markdown formatting",
+            "template": "Format the output using clean, semantic Markdown. Use headers (#, ##), lists, bolding, and code blocks where appropriate."
+        },
+        {
+            "id": "json",
+            "name": "JSON",
+            "description": "Structured JSON output",
+            "template": "Output ONLY valid JSON. Do not include markdown formatting (```json). Follow this schema:\n[[SCHEMA]]",
+            "exampleSchema": "{\n  \"key\": \"value\",\n  \"items\": []\n}"
+        },
+        {
+            "id": "table",
+            "name": "Table",
+            "description": "Markdown table format",
+            "template": "Present the information primarily in a Markdown table. Ensure columns are clearly labeled."
+        },
+        {
+            "id": "bullets",
+            "name": "Bullet Points",
+            "description": "List of bullet points",
+            "template": "Present the response as a structured list of bullet points. Use nested bullets for details."
+        },
+        {
+            "id": "tech_doc",
+            "name": "Technical Documentation",
+            "description": "Formal technical documentation style",
+            "template": "Format as technical documentation. Include sections for: Overview, Prerequisites, Implementation, and Troubleshooting."
+        }
+    ]
+}
