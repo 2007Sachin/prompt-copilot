@@ -1,13 +1,6 @@
-import { useState } from 'react';
-import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
-import { PromptConfig } from '../types';
-
-interface ModelConfigProps {
-    config: PromptConfig;
-    onConfigChange: (config: PromptConfig) => void;
-    isOpen: boolean;
-    onToggle: () => void;
-    sidebarCollapsed: boolean;
+isOpen: boolean;
+onToggle: () => void;
+sidebarCollapsed: boolean;
 }
 
 interface Model {

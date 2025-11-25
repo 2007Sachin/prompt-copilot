@@ -87,7 +87,7 @@ export function validateEnvironment(): EnvConfig {
 export async function validateSupabaseConnection(): Promise<boolean> {
     try {
         const { supabase } = await import('./supabaseClient');
-        const { data, error } = await supabase.from('prompts').select('count', { count: 'exact', head: true });
+        const { error } = await supabase.from('prompts').select('count', { count: 'exact', head: true });
 
         if (error) {
             console.error('Supabase connection error:', error);

@@ -99,7 +99,7 @@ Generate a ${lengthMode.name.toLowerCase()} prompt that:
 
 Return ONLY the optimized prompt text, nothing else.`;
 
-    const { provider, model, temperature } = config.modelConfig;
+    const { provider, model } = config.modelConfig;
 
     try {
         // Use the selected LLM to generate the prompt
