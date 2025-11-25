@@ -5,7 +5,7 @@ import InputSection from './components/InputSection';
 import OutputSection from './components/OutputSection';
 import ModelConfigPage from './components/ModelConfigPage';
 import Sidebar from './components/Sidebar';
-import { PromptConfig, PromptRecord, APEVariant, PromptScore } from './types';
+import { PromptConfig, PromptRecord, PromptScore } from './types';
 import { apeGenerateVariants, scorePromptLLM, generatePromptWithAI } from './lib/promptEngine';
 import { savePrompt } from './lib/storage';
 import techniquesData from './data/techniques.json';
@@ -187,7 +187,7 @@ function MainApp({ user }: MainAppProps) {
         setIsGenerating(true);
         try {
             const variants = await apeGenerateVariants(config, apiKeys);
-            setApeVariants(variants);
+            console.log('APE Variants generated:', variants);
         } catch (err: any) {
             showToastMessage('error', "APE generation failed: " + err.message);
         } finally {
