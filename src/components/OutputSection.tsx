@@ -1,13 +1,6 @@
-import { Eye, Code, Copy, Check, Sparkles } from 'lucide-react';
-import { PromptScore } from '../types';
-import { useState } from 'react';
-
-interface OutputSectionProps {
-    generatedPrompt: string;
-    promptScore?: PromptScore | null;
-    isMegaPrompt: boolean;
-    isGenerating?: boolean;
-    isScoring?: boolean;
+isMegaPrompt: boolean;
+isGenerating ?: boolean;
+isScoring ?: boolean;
 }
 
 const OutputSection: React.FC<OutputSectionProps> = ({
