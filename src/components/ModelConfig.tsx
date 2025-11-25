@@ -1,4 +1,19 @@
-description ?: string;
+import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { PromptConfig } from '../types';
+
+interface ModelConfigProps {
+    config: PromptConfig;
+    onConfigChange: (config: PromptConfig) => void;
+    isOpen: boolean;
+    onToggle: () => void;
+    sidebarCollapsed: boolean;
+}
+
+interface Model {
+    id: string;
+    name: string;
+    provider: string;
+    description?: string;
 }
 
 // Comprehensive fallback list of models available as of late 2024/2025
