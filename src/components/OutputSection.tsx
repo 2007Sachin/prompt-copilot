@@ -1,13 +1,4 @@
-isMegaPrompt: boolean;
-isGenerating ?: boolean;
-isScoring ?: boolean;
-}
-
-const OutputSection: React.FC<OutputSectionProps> = ({
-    generatedPrompt,
-    promptScore,
-    isMegaPrompt,
-    isGenerating,
+isGenerating,
     isScoring
 }) => {
     const [copiedPrompt, setCopiedPrompt] = useState(false);

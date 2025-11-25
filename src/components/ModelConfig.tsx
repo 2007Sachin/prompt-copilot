@@ -1,13 +1,4 @@
-isOpen: boolean;
-onToggle: () => void;
-sidebarCollapsed: boolean;
-}
-
-interface Model {
-    id: string;
-    name: string;
-    provider: string;
-    description?: string;
+description ?: string;
 }
 
 // Comprehensive fallback list of models available as of late 2024/2025
