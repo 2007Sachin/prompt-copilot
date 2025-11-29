@@ -46,6 +46,7 @@ function MainApp({ user }: MainAppProps) {
     const [config, setConfig] = useState<PromptConfig>(INITIAL_CONFIG);
     const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
     const [promptScore, setPromptScore] = useState<PromptScore | null>(null);
+    const [apeVariants, setApeVariants] = useState<APEVariant[] | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
     // UI State
@@ -209,7 +210,7 @@ function MainApp({ user }: MainAppProps) {
         setIsGenerating(true);
         try {
             const variants = await apeGenerateVariants(config, apiKeys);
-            console.log('APE Variants generated:', variants);
+            setApeVariants(variants);
         } catch (err: any) {
             showToastMessage('error', "APE generation failed: " + err.message);
         } finally {
@@ -292,10 +293,11 @@ function MainApp({ user }: MainAppProps) {
                         <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
                             <InputSection
                                 config={config}
-                                setConfig={setConfig}
+                                onConfigChange={setConfig}
                                 onGenerate={handleGenerate}
                                 isGenerating={isGenerating}
                                 onAPE={handleAPE}
+                                onSave={handleSave}
                             />
                         </div>
                         <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar pl-2">
