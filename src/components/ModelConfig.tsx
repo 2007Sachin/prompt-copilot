@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { PromptConfig } from '../types';
 
@@ -29,10 +30,12 @@ const DEFAULT_MODELS: Record<string, Model[]> = {
         { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'anthropic', description: 'Fastest, most compact model' },
     ],
     groq: [
-        { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B Versatile', provider: 'groq', description: 'High performance, versatile model' },
-        { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', provider: 'groq', description: 'Ultra-fast, efficient responses' },
-        { id: 'llama-3.2-1b-preview', name: 'Llama 3.2 1B Preview', provider: 'groq', description: 'Lightweight preview model' },
-        { id: 'llama-3.2-3b-preview', name: 'Llama 3.2 3B Preview', provider: 'groq', description: 'Compact preview model' },
+        { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B', provider: 'groq', description: 'High performance open model' },
+        { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'groq', description: 'Ultra-fast open model' },
+        { id: 'llama-3.2-90b-vision-preview', name: 'Llama 3.2 90B (Vision)', provider: 'groq', description: 'Multimodal vision capabilities' },
+        { id: 'llama-3.2-11b-vision-preview', name: 'Llama 3.2 11B (Vision)', provider: 'groq', description: 'Efficient vision model' },
+        { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'groq', description: 'High quality MoE model' },
+        { id: 'gemma2-9b-it', name: 'Gemma 2 9B', provider: 'groq', description: 'Google\'s open model' },
     ],
     gemini: [
         { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'gemini', description: 'Complex reasoning, 2M context' },
@@ -156,13 +159,13 @@ export default function ModelConfig({ config, onConfigChange, isOpen, onToggle, 
                     <input
                         type="range"
                         min="100"
-                        max="128000"
+                        max="128000" 
                         step="100"
                         value={config.modelConfig.maxTokens}
                         onChange={(e) => handleChange('maxTokens', parseInt(e.target.value))}
                         className="w-full h-1 bg-[#2A2A2A] rounded-lg appearance-none cursor-pointer accent-[#BB86FC]"
                     />
-                    <div className="flex justify-between text-[10px] text-[#666]">
+                     <div className="flex justify-between text-[10px] text-[#666]">
                         <span>100</span>
                         <span>128k</span>
                     </div>
