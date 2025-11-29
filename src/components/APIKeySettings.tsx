@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Key, Save, CheckCircle, Eye, EyeOff, Shield } from "lucide-react";
+import { encryptData, decryptData } from "../lib/security";
 
 export default function APIKeySettings() {
     const [keys, setKeys] = useState<Record<string, string>>({
@@ -15,10 +16,10 @@ export default function APIKeySettings() {
     useEffect(() => {
         // Load custom keys from localStorage
         setKeys({
-            openai: localStorage.getItem("openai_key") || "",
-            groq: localStorage.getItem("groq_key") || "",
-            anthropic: localStorage.getItem("anthropic_key") || "",
-            gemini: localStorage.getItem("google_key") || ""
+            openai: decryptData(localStorage.getItem("openai_key") || ""),
+            groq: decryptData(localStorage.getItem("groq_key") || ""),
+            anthropic: decryptData(localStorage.getItem("anthropic_key") || ""),
+            gemini: decryptData(localStorage.getItem("google_key") || "")
         });
 
         // Load custom key preference (single global toggle)
@@ -34,11 +35,11 @@ export default function APIKeySettings() {
     }
 
     function saveKeys() {
-        // Save custom keys
-        localStorage.setItem("openai_key", keys.openai);
-        localStorage.setItem("groq_key", keys.groq);
-        localStorage.setItem("anthropic_key", keys.anthropic);
-        localStorage.setItem("google_key", keys.gemini);
+        // Save custom keys (encrypted)
+        localStorage.setItem("openai_key", encryptData(keys.openai));
+        localStorage.setItem("groq_key", encryptData(keys.groq));
+        localStorage.setItem("anthropic_key", encryptData(keys.anthropic));
+        localStorage.setItem("google_key", encryptData(keys.gemini));
 
         // Save custom key preference (single global setting)
         localStorage.setItem("use_custom_keys", useCustomKeys.toString());

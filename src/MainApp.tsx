@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy, useRef } from 'react';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Menu, Sparkles } from 'lucide-react';
+import { decryptData } from './lib/security';
 
 import InputSection from './components/InputSection';
 import OutputSection from './components/OutputSection';
@@ -54,25 +55,26 @@ function MainApp({ user }: MainAppProps) {
     // Navigation State
     const [activePage, setActivePage] = useState("home");
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const loadApiKeys = () => {
         const useCustomKeys = localStorage.getItem("use_custom_keys") === "true";
 
         const keys = {
             openai_key: useCustomKeys
-                ? (localStorage.getItem("openai_key") || undefined)
+                ? (decryptData(localStorage.getItem("openai_key") || "") || undefined)
                 : (import.meta.env.VITE_OPENAI_API_KEY || undefined),
 
             groq_key: useCustomKeys
-                ? (localStorage.getItem("groq_key") || undefined)
+                ? (decryptData(localStorage.getItem("groq_key") || "") || undefined)
                 : (import.meta.env.VITE_GROQ_API_KEY || undefined),
 
             anthropic_key: useCustomKeys
-                ? (localStorage.getItem("anthropic_key") || undefined)
+                ? (decryptData(localStorage.getItem("anthropic_key") || "") || undefined)
                 : (import.meta.env.VITE_ANTHROPIC_API_KEY || undefined),
 
             google_key: useCustomKeys
-                ? (localStorage.getItem("google_key") || undefined)
+                ? (decryptData(localStorage.getItem("google_key") || "") || undefined)
                 : (import.meta.env.VITE_GEMINI_API_KEY || undefined)
         };
         return keys;
@@ -241,80 +243,92 @@ function MainApp({ user }: MainAppProps) {
     );
 
     return (
-        <div className="flex h-screen bg-[#121212] overflow-hidden">
+        <div className="flex h-screen bg-[#121212] overflow-hidden flex-col md:flex-row">
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#121212] border-b border-[#2A2A2A] z-30 flex items-center justify-between px-4">
+                <div className="flex items-center gap-2">
+                    <div className="bg-[#252525] p-1.5 rounded-lg">
+                        <Sparkles className="text-[#BB86FC] w-5 h-5" />
+                    </div>
+                    <span className="font-bold text-[#E0E0E0] text-lg tracking-tight">PromptCopilot</span>
+                </div>
+                <button
+                    onClick={() => setMobileMenuOpen(true)}
+                    className="p-2 text-[#A0A0A0] hover:text-[#E0E0E0] hover:bg-[#1E1E1E] rounded-lg transition-colors"
+                >
+                    <Menu size={24} />
+                </button>
+            </div>
+
             <Sidebar
                 active={activePage}
                 setActive={setActivePage}
                 collapsed={sidebarCollapsed}
                 setCollapsed={setSidebarCollapsed}
+                mobileMenuOpen={mobileMenuOpen}
+                setMobileMenuOpen={setMobileMenuOpen}
             />
 
             <div
-                className="flex-1 flex flex-col transition-all duration-300"
-                style={{ marginLeft: sidebarCollapsed ? '70px' : '240px' }}
+                className={`
+                    flex-1 flex flex-col transition-all duration-300
+                    pt-16 md:pt-0
+                    ${sidebarCollapsed ? 'md:ml-[70px]' : 'md:ml-[240px]'}
+                    ml-0
+                `}
             >
                 {activePage === "home" && (
                     <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-hidden">
                         <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
                             <InputSection
                                 config={config}
-                                onConfigChange={setConfig}
+                                setConfig={setConfig}
                                 onGenerate={handleGenerate}
-                                onAPE={handleAPE}
-                                onSave={handleSave}
                                 isGenerating={isGenerating}
+                                onAPE={handleAPE}
                             />
                         </div>
-
-                        <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
+                        <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar pl-2">
                             <OutputSection
                                 generatedPrompt={generatedPrompt}
+                                promptScore={promptScore}
                                 isGenerating={isGenerating}
                                 isScoring={isScoring}
-                                promptScore={promptScore}
-                                isMegaPrompt={config.technique.id === 'mega-prompt'}
+                                onSave={handleSave}
                             />
                         </div>
-                    </div>
-                )}
-
-                {activePage === "modelconfig" && (
-                    <div className="flex-1 p-6 overflow-auto">
-                        <ModelConfigPage
-                            config={config}
-                            onConfigChange={setConfig}
-                        />
                     </div>
                 )}
 
                 {activePage === "history" && (
-                    <div className="flex-1 p-6 overflow-auto">
-                        <Suspense fallback={<LoadingFallback />}>
-                            <PromptHistory onView={handleViewPrompt} userId={user?.id} />
-                        </Suspense>
-                    </div>
+                    <Suspense fallback={<LoadingFallback />}>
+                        <PromptHistory onViewPrompt={handleViewPrompt} user={user} />
+                    </Suspense>
                 )}
 
                 {activePage === "usage" && (
-                    <div className="flex-1 p-6 overflow-auto">
-                        <Suspense fallback={<LoadingFallback />}>
-                            <UsageDashboard user={user} />
-                        </Suspense>
-                    </div>
+                    <Suspense fallback={<LoadingFallback />}>
+                        <UsageDashboard user={user} />
+                    </Suspense>
+                )}
+
+                {activePage === "modelconfig" && (
+                    <ModelConfigPage
+                        config={config}
+                        setConfig={setConfig}
+                    />
                 )}
 
                 {activePage === "settings" && (
-                    <div className="flex-1 p-6 overflow-auto">
-                        <Suspense fallback={<LoadingFallback />}>
-                            <SettingsPage user={user} />
-                        </Suspense>
-                    </div>
+                    <Suspense fallback={<LoadingFallback />}>
+                        <SettingsPage />
+                    </Suspense>
                 )}
             </div>
 
-            {/* Toast Notifications */}
+            {/* Toast Notification */}
             {toast && (
-                <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in z-50 ${toast.type === 'success' ? 'bg-green-500/20 border border-green-500/50 text-green-200' : 'bg-red-500/20 border border-red-500/50 text-red-200'
+                <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in z-50 ${toast.type === 'success' ? 'bg-green-500/20 text-green-200 border border-green-500/30' : 'bg-red-500/20 text-red-200 border border-red-500/30'
                     }`}>
                     {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                     <span className="font-medium">{toast.message}</span>
