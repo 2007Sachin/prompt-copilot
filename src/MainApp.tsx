@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { useState, Suspense, lazy, useRef } from 'react';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 
 import InputSection from './components/InputSection';
@@ -49,6 +49,7 @@ function MainApp({ user }: MainAppProps) {
     // UI State
     const [isGenerating, setIsGenerating] = useState(false);
     const [isScoring, setIsScoring] = useState(false);
+    const isGeneratingRef = useRef(false);
 
     // Navigation State
     const [activePage, setActivePage] = useState("home");
@@ -83,6 +84,9 @@ function MainApp({ user }: MainAppProps) {
     };
 
     const handleGenerate = async () => {
+        if (isGeneratingRef.current) return;
+        isGeneratingRef.current = true;
+
         const apiKeys = loadApiKeys();
         const provider = config.modelConfig.provider;
 
@@ -98,6 +102,7 @@ function MainApp({ user }: MainAppProps) {
         if (!requiredKey) {
             const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
             showToastMessage('error', `${providerName} API key is required. Please add it in Settings → API Keys.`);
+            isGeneratingRef.current = false;
             return;
         }
 
@@ -162,10 +167,14 @@ function MainApp({ user }: MainAppProps) {
             showToastMessage('error', "Failed to generate prompt: " + err.message);
         } finally {
             setIsGenerating(false);
+            isGeneratingRef.current = false;
         }
     };
 
     const handleAPE = async () => {
+        if (isGeneratingRef.current) return;
+        isGeneratingRef.current = true;
+
         const apiKeys = loadApiKeys();
         const provider = config.modelConfig.provider;
 
@@ -181,6 +190,7 @@ function MainApp({ user }: MainAppProps) {
         if (!requiredKey) {
             const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
             showToastMessage('error', `${providerName} API key is required for APE. Please add it in Settings → API Keys.`);
+            isGeneratingRef.current = false;
             return;
         }
 
@@ -192,6 +202,7 @@ function MainApp({ user }: MainAppProps) {
             showToastMessage('error', "APE generation failed: " + err.message);
         } finally {
             setIsGenerating(false);
+            isGeneratingRef.current = false;
         }
     };
 
