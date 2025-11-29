@@ -1,6 +1,7 @@
 import { useState, Suspense, lazy, useRef } from 'react';
 import { CheckCircle, AlertCircle, Menu, Sparkles } from 'lucide-react';
 import { decryptData } from './lib/security';
+import { PromptConfigSchema } from './lib/validation';
 
 import InputSection from './components/InputSection';
 import OutputSection from './components/OutputSection';
@@ -88,6 +89,15 @@ function MainApp({ user }: MainAppProps) {
     const handleGenerate = async () => {
         if (isGeneratingRef.current) return;
         isGeneratingRef.current = true;
+
+        // Validate Config
+        const validationResult = PromptConfigSchema.safeParse(config);
+        if (!validationResult.success) {
+            const errorMessage = validationResult.error.errors.map(e => e.message).join(', ');
+            showToastMessage('error', errorMessage);
+            isGeneratingRef.current = false;
+            return;
+        }
 
         const apiKeys = loadApiKeys();
         const provider = config.modelConfig.provider;
