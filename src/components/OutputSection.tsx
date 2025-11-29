@@ -1,13 +1,16 @@
 import { Copy, Check, Sparkles } from 'lucide-react';
-import { PromptScore } from '../types';
+import { PromptScore, APEVariant } from '../types';
 import { useState } from 'react';
+import APESection from './APESection';
 
 interface OutputSectionProps {
     generatedPrompt: string;
     promptScore?: PromptScore | null;
-    isMegaPrompt: boolean;
+    isMegaPrompt?: boolean;
     isGenerating?: boolean;
     isScoring?: boolean;
+    onSave?: () => void;
+    apeVariants?: APEVariant[] | null;
 }
 
 const OutputSection: React.FC<OutputSectionProps> = ({
@@ -15,7 +18,8 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     promptScore,
     isMegaPrompt,
     isGenerating,
-    isScoring
+    isScoring,
+    apeVariants
 }) => {
     const [copiedPrompt, setCopiedPrompt] = useState(false);
 
@@ -28,7 +32,7 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     return (
         <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.3)] h-full flex flex-col">
             <div className="flex-1 overflow-hidden flex flex-col bg-transparent">
-                <div className="h-full flex flex-col animate-fade-in">
+                <div className="h-full flex flex-col animate-fade-in overflow-y-auto custom-scrollbar pr-2">
                     {/* LLM Scoring Display */}
                     {isScoring && (
                         <div className="mb-6 p-4 bg-[#252525] border border-[#BB86FC]/30 rounded-xl text-[#BB86FC] flex items-center gap-3 animate-pulse">
@@ -76,7 +80,7 @@ const OutputSection: React.FC<OutputSectionProps> = ({
                     )}
 
                     {isGenerating ? (
-                        <div className="h-full flex items-center justify-center">
+                        <div className="h-full flex items-center justify-center min-h-[200px]">
                             <div className="text-center space-y-4">
                                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#BB86FC] mx-auto"></div>
                                 <p className="text-[#A0A0A0] font-medium">Generating optimized prompt...</p>
@@ -94,16 +98,26 @@ const OutputSection: React.FC<OutputSectionProps> = ({
                                     {copiedPrompt ? 'Copied!' : 'Copy'}
                                 </button>
                             </div>
-                            <div className="flex-1 bg-[#1E1E1E] p-5 rounded-xl border border-[#2A2A2A] overflow-y-auto font-mono text-sm text-[#E0E0E0] whitespace-pre-wrap leading-relaxed shadow-inner custom-scrollbar">
+                            <div className="bg-[#1E1E1E] p-5 rounded-xl border border-[#2A2A2A] font-mono text-sm text-[#E0E0E0] whitespace-pre-wrap leading-relaxed shadow-inner mb-6">
                                 {generatedPrompt}
                             </div>
                         </>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-[#A0A0A0] space-y-4">
+                    ) : !apeVariants && (
+                        <div className="h-full flex flex-col items-center justify-center text-[#A0A0A0] space-y-4 min-h-[200px]">
                             <div className="bg-[#252525] p-4 rounded-full border border-[#2A2A2A]">
                                 <Wand2 size={32} className="text-[#666]" />
                             </div>
                             <p className="text-sm font-medium">Click "Generate Prompt" to create your optimized prompt.</p>
+                        </div>
+                    )}
+
+                    {apeVariants && (
+                        <div className="mt-6 border-t border-[#2A2A2A] pt-6">
+                            <APESection
+                                variants={apeVariants}
+                                onSelect={() => { }}
+                                onRerun={() => { }}
+                            />
                         </div>
                     )}
                 </div>
