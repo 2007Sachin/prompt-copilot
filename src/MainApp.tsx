@@ -1,11 +1,11 @@
-import { useState, Suspense, lazy, useRef } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { CheckCircle, AlertCircle, Menu, Sparkles } from 'lucide-react';
 import { decryptData } from './lib/security';
 import InputSection from './components/InputSection';
 import OutputSection from './components/OutputSection';
 import ModelConfigPage from './components/ModelConfigPage';
 import Sidebar from './components/Sidebar';
-import { PromptConfig, PromptRecord, PromptScore, APEVariant } from './types';
+import { PromptConfig, PromptScore, APEVariant } from './types';
 import { usePromptGenerator } from './hooks/usePromptGenerator';
 import { usePromptHistory } from './hooks/usePromptHistory';
 import techniquesData from './data/techniques.json';
@@ -177,7 +177,7 @@ function MainApp({ user }: MainAppProps) {
                 {activePage === "history" && (
                     <div className="flex-1 p-6 overflow-hidden h-full">
                         <Suspense fallback={<LoadingFallback />}>
-                            <PromptHistory onViewPrompt={handleViewPrompt} user={user} />
+                            <PromptHistory onView={handleViewPrompt} userId={user?.id} />
                         </Suspense>
                     </div>
                 )}

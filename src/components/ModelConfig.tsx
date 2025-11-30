@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { PromptConfig } from '../types';
 
