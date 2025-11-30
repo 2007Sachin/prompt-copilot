@@ -13,7 +13,7 @@ export const TechniqueSchema = z.object({
     category: z.string(),
     description: z.string(),
     template: z.string(),
-    recommendedConfig: z.record(z.any()).optional(),
+    recommendedConfig: z.record(z.string(), z.any()).optional(),
     supportsExamples: z.boolean().optional(),
     supportsSchema: z.boolean().optional(),
 });
@@ -24,7 +24,7 @@ export const LengthModeSchema = z.object({
     description: z.string(),
     modifier: z.string(),
     recommendedTokens: z.number(),
-    recommendedConfig: z.record(z.any()).optional(),
+    recommendedConfig: z.record(z.string(), z.any()).optional(),
 });
 
 export const OutputFormatSchema = z.object({
