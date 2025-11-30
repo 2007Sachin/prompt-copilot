@@ -67,6 +67,7 @@ export async function savePromptSupabase(record: any, userId: string) {
         output_format: record.output_format ?? null,
         context: record.context ?? null,
         final_prompt: record.final_prompt ?? null,
+        chat_history: record.chatHistory ?? [], // Persist chat history
         created_at: new Date().toISOString()
     };
 

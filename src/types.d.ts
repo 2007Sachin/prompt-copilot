@@ -75,6 +75,7 @@ export interface PromptRecord {
     modelConfig: ModelConfig;
     context: string;
     finalPrompt: string;
+    chatHistory?: { role: 'user' | 'assistant'; content: string; timestamp: number }[];
     createdAt: number;
 }
 
