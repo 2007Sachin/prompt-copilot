@@ -324,6 +324,11 @@ export async function runPromptLLM(
             }
         } else if (provider === "groq") {
             const apiKey = apiKeys.groq_key;
+            console.log('🔍 Groq API Key in runPromptLLM:', {
+                exists: !!apiKey,
+                type: typeof apiKey,
+                value: apiKey ? (apiKey.substring(0, 10) + '...' + apiKey.slice(-4)) : 'undefined/null'
+            });
             if (!apiKey) throw new Error("Groq API key not found. Please add it in API Settings.");
 
             const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });

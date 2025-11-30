@@ -1,6 +1,6 @@
 import { Copy, Check, Sparkles } from 'lucide-react';
 import { PromptScore, APEVariant } from '../types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import APESection from './APESection';
 
 interface OutputSectionProps {
@@ -11,6 +11,7 @@ interface OutputSectionProps {
     isScoring?: boolean;
     onSave?: () => void;
     apeVariants?: APEVariant[] | null;
+    onApplyVariant?: (variant: APEVariant) => void;
 }
 
 const OutputSection: React.FC<OutputSectionProps> = ({
@@ -19,9 +20,18 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     isMegaPrompt,
     isGenerating,
     isScoring,
-    apeVariants
+    apeVariants,
+    onApplyVariant
 }) => {
     const [copiedPrompt, setCopiedPrompt] = useState(false);
+
+    useEffect(() => {
+        console.log('📤 OutputSection received generatedPrompt:', {
+            exists: !!generatedPrompt,
+            length: generatedPrompt?.length,
+            preview: generatedPrompt?.substring(0, 50)
+        });
+    }, [generatedPrompt]);
 
     const copyToClipboard = (text: string, setCopied: (val: boolean) => void) => {
         navigator.clipboard.writeText(text);
@@ -115,7 +125,7 @@ const OutputSection: React.FC<OutputSectionProps> = ({
                         <div className="mt-6 border-t border-[#2A2A2A] pt-6">
                             <APESection
                                 variants={apeVariants}
-                                onSelect={() => { }}
+                                onSelect={onApplyVariant || (() => { })}
                                 onRerun={() => { }}
                             />
                         </div>

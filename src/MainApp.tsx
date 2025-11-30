@@ -1,15 +1,13 @@
 import { useState, Suspense, lazy, useRef } from 'react';
 import { CheckCircle, AlertCircle, Menu, Sparkles } from 'lucide-react';
 import { decryptData } from './lib/security';
-import { PromptConfigSchema } from './lib/validation';
-
 import InputSection from './components/InputSection';
 import OutputSection from './components/OutputSection';
 import ModelConfigPage from './components/ModelConfigPage';
 import Sidebar from './components/Sidebar';
-import { PromptConfig, PromptRecord, PromptScore } from './types';
-import { apeGenerateVariants, scorePromptLLM, generatePromptWithAI } from './lib/promptEngine';
-import { savePrompt } from './lib/storage';
+import { PromptConfig, PromptRecord, PromptScore, APEVariant } from './types';
+import { usePromptGenerator } from './hooks/usePromptGenerator';
+import { usePromptHistory } from './hooks/usePromptHistory';
 import techniquesData from './data/techniques.json';
 
 // Lazy Load Heavy Components
@@ -50,9 +48,7 @@ function MainApp({ user }: MainAppProps) {
     const [toast, setToast] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
     // UI State
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [isScoring, setIsScoring] = useState(false);
-    const isGeneratingRef = useRef(false);
+    // UI State (managed by hooks)
 
     // Navigation State
     const [activePage, setActivePage] = useState("home");
@@ -87,164 +83,28 @@ function MainApp({ user }: MainAppProps) {
         setTimeout(() => setToast(null), 3000);
     };
 
-    const handleGenerate = async () => {
-        if (isGeneratingRef.current) return;
-        isGeneratingRef.current = true;
+    const { isGenerating, isScoring, handleGenerate, handleAPE } = usePromptGenerator({
+        config,
+        user,
+        loadApiKeys,
+        setGeneratedPrompt,
+        setPromptScore,
+        setApeVariants,
+        showToastMessage
+    });
 
-        // Validate Config
-        const validationResult = PromptConfigSchema.safeParse(config);
-        if (!validationResult.success) {
-            const errorMessage = validationResult.error.errors.map(e => e.message).join(', ');
-            showToastMessage('error', errorMessage);
-            isGeneratingRef.current = false;
-            return;
-        }
+    const { handleSave, handleViewPrompt } = usePromptHistory({
+        config,
+        setConfig,
+        generatedPrompt,
+        setGeneratedPrompt,
+        setActivePage,
+        showToastMessage
+    });
 
-        const apiKeys = loadApiKeys();
-        const provider = config.modelConfig.provider;
-
-        const keyMap: Record<string, string | undefined> = {
-            'openai': apiKeys.openai_key,
-            'groq': apiKeys.groq_key,
-            'anthropic': apiKeys.anthropic_key,
-            'gemini': apiKeys.google_key
-        };
-
-        const requiredKey = keyMap[provider];
-
-        if (!requiredKey) {
-            const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
-            showToastMessage('error', `${providerName} API key is required. Please add it in Settings → API Keys.`);
-            isGeneratingRef.current = false;
-            return;
-        }
-
-        setIsGenerating(true);
-
-        try {
-            // Use AI to generate the optimized prompt
-            const { prompt, usage: genUsage } = await generatePromptWithAI(config, apiKeys);
-            setGeneratedPrompt(prompt);
-
-            // Save AI generation usage
-            if (user?.id) {
-                try {
-                    const { saveUsageSupabase } = await import('./lib/usage');
-                    await saveUsageSupabase(genUsage, user.id);
-                } catch (err: any) {
-                    console.error("Failed to save generation usage:", err);
-                }
-            }
-
-            // Save prompt to history
-            if (user?.id) {
-                try {
-                    const { savePromptSupabase } = await import('./lib/storage');
-                    const promptRecord = {
-                        name: `${config.useCase.name} - ${new Date().toLocaleString()}`,
-                        use_case: config.useCase,
-                        technique: config.technique,
-                        persona: config.persona,
-                        length_mode: config.lengthMode,
-                        output_format: config.outputFormat,
-                        context: config.context,
-                        final_prompt: prompt
-                    };
-                    await savePromptSupabase(promptRecord, user.id);
-                } catch (saveErr: any) {
-                    // Saving is not critical
-                }
-            }
-
-            // Score the AI-generated prompt
-            setIsScoring(true);
-            try {
-                const { score, usage: scoreUsage } = await scorePromptLLM(prompt, config.modelConfig, apiKeys);
-                setPromptScore(score);
-
-                if (user?.id) {
-                    try {
-                        const { saveUsageSupabase } = await import('./lib/usage');
-                        await saveUsageSupabase(scoreUsage, user.id);
-                    } catch (err: any) {
-                        console.error("Failed to save scoring usage:", err);
-                    }
-                }
-            } catch (err: any) {
-                showToastMessage('error', "Failed to score prompt: " + err.message);
-                setPromptScore(null);
-            } finally {
-                setIsScoring(false);
-            }
-        } catch (err: any) {
-            showToastMessage('error', "Failed to generate prompt: " + err.message);
-        } finally {
-            setIsGenerating(false);
-            isGeneratingRef.current = false;
-        }
-    };
-
-    const handleAPE = async () => {
-        if (isGeneratingRef.current) return;
-        isGeneratingRef.current = true;
-
-        const apiKeys = loadApiKeys();
-        const provider = config.modelConfig.provider;
-
-        const keyMap: Record<string, string | undefined> = {
-            'openai': apiKeys.openai_key,
-            'groq': apiKeys.groq_key,
-            'anthropic': apiKeys.anthropic_key,
-            'gemini': apiKeys.google_key
-        };
-
-        const requiredKey = keyMap[provider];
-
-        if (!requiredKey) {
-            const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
-            showToastMessage('error', `${providerName} API key is required for APE. Please add it in Settings → API Keys.`);
-            isGeneratingRef.current = false;
-            return;
-        }
-
-        setIsGenerating(true);
-        try {
-            const variants = await apeGenerateVariants(config, apiKeys);
-            setApeVariants(variants);
-        } catch (err: any) {
-            showToastMessage('error', "APE generation failed: " + err.message);
-        } finally {
-            setIsGenerating(false);
-            isGeneratingRef.current = false;
-        }
-    };
-
-    const handleSave = () => {
-        if (!generatedPrompt) return;
-
-        const newPrompt: PromptRecord = {
-            id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-            name: `${config.useCase.name} - ${config.technique.name}`,
-            useCase: config.useCase,
-            technique: config.technique,
-            persona: config.persona,
-            lengthMode: config.lengthMode,
-            outputFormat: config.outputFormat,
-            modelConfig: config.modelConfig,
-            context: config.context,
-            finalPrompt: generatedPrompt,
-            createdAt: Date.now()
-        };
-
-        savePrompt(newPrompt);
-        showToastMessage('success', "Prompt saved successfully");
-    };
-
-    const handleViewPrompt = (p: any) => {
-        setConfig(prev => ({ ...prev, ...p }));
-        setGeneratedPrompt(p.final_prompt || p.prompt_text || '');
-        setActivePage('home');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const handleApplyVariant = (variant: APEVariant) => {
+        setGeneratedPrompt(variant.prompt);
+        showToastMessage('success', "Applied " + variant.meta.variation + " variant");
     };
 
     const LoadingFallback = () => (
@@ -307,34 +167,44 @@ function MainApp({ user }: MainAppProps) {
                                 isGenerating={isGenerating}
                                 isScoring={isScoring}
                                 onSave={handleSave}
+                                apeVariants={apeVariants}
+                                onApplyVariant={handleApplyVariant}
                             />
                         </div>
                     </div>
                 )}
 
                 {activePage === "history" && (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <PromptHistory onViewPrompt={handleViewPrompt} user={user} />
-                    </Suspense>
+                    <div className="flex-1 p-6 overflow-hidden h-full">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <PromptHistory onViewPrompt={handleViewPrompt} user={user} />
+                        </Suspense>
+                    </div>
                 )}
 
                 {activePage === "usage" && (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <UsageDashboard user={user} />
-                    </Suspense>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <UsageDashboard user={user} />
+                        </Suspense>
+                    </div>
                 )}
 
                 {activePage === "modelconfig" && (
-                    <ModelConfigPage
-                        config={config}
-                        setConfig={setConfig}
-                    />
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <ModelConfigPage
+                            config={config}
+                            onConfigChange={setConfig}
+                        />
+                    </div>
                 )}
 
                 {activePage === "settings" && (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <SettingsPage />
-                    </Suspense>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <SettingsPage />
+                        </Suspense>
+                    </div>
                 )}
             </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Plus, Trash2, Wand2, Save } from 'lucide-react';
 import { UseCase, Technique, LengthMode, OutputFormat, PromptConfig } from '../types';
 import techniquesData from '../data/techniques.json';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface InputSectionProps {
     config: PromptConfig;
@@ -47,15 +48,14 @@ const InputSection: React.FC<InputSectionProps> = ({
         }
     }, []);
 
-    // Auto-save context every 5 seconds
+    // Auto-save context with debounce
+    const debouncedContext = useDebounce(config.context, 1000);
+
     useEffect(() => {
-        const id = setInterval(() => {
-            if (config.context && config.context.length > 0) {
-                localStorage.setItem("draft_context", config.context);
-            }
-        }, 5000);
-        return () => clearInterval(id);
-    }, [config.context]);
+        if (debouncedContext && debouncedContext.length > 0) {
+            localStorage.setItem("draft_context", debouncedContext);
+        }
+    }, [debouncedContext]);
 
     const handleExampleChange = (index: number, field: 'input' | 'output', value: string) => {
         const newExamples = [...config.examples];
