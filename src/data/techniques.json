@@ -4,31 +4,31 @@
             "id": "general",
             "name": "General Assistant",
             "description": "General purpose assistance and queries",
-            "template": "You are a helpful AI assistant. Your goal is to [[GOAL]].\n\nContext:\n[[CONTEXT]]"
+            "template": "You are a helpful AI assistant. Your goal is to <goal>[[GOAL]]</goal>.\n\nContext:\n<context>[[CONTEXT]]</context>"
         },
         {
             "id": "coding",
             "name": "Coding & Development",
             "description": "Code generation, debugging, and architecture",
-            "template": "You are an expert software engineer. Your goal is to [[GOAL]].\n\nTechnical Context:\n[[CONTEXT]]\n\nConstraints:\n[[CONSTRAINTS]]"
+            "template": "You are an expert software engineer. Your goal is to <goal>[[GOAL]]</goal>.\n\nTechnical Context:\n<context>[[CONTEXT]]</context>\n\nConstraints:\n[[CONSTRAINTS]]"
         },
         {
             "id": "writing",
             "name": "Creative Writing",
             "description": "Content creation, storytelling, and editing",
-            "template": "You are a creative writer and editor. Your goal is to [[GOAL]].\n\nTopic/Theme:\n[[CONTEXT]]\n\nTone/Style:\n[[PERSONA]]"
+            "template": "You are a creative writer and editor. Your goal is to <goal>[[GOAL]]</goal>.\n\nTopic/Theme:\n<context>[[CONTEXT]]</context>\n\nTone/Style:\n[[PERSONA]]"
         },
         {
             "id": "data",
             "name": "Data Analysis",
             "description": "Analyzing data, patterns, and statistics",
-            "template": "You are a data scientist. Your goal is to [[GOAL]].\n\nData Context:\n[[CONTEXT]]\n\nRequired Analysis:\n[[CONSTRAINTS]]"
+            "template": "You are a data scientist. Your goal is to <goal>[[GOAL]]</goal>.\n\nData Context:\n<context>[[CONTEXT]]</context>\n\nRequired Analysis:\n[[CONSTRAINTS]]"
         },
         {
             "id": "business",
             "name": "Business Strategy",
             "description": "Business planning, marketing, and strategy",
-            "template": "You are a business strategist. Your goal is to [[GOAL]].\n\nBusiness Context:\n[[CONTEXT]]"
+            "template": "You are a business strategist. Your goal is to <goal>[[GOAL]]</goal>.\n\nBusiness Context:\n<context>[[CONTEXT]]</context>"
         }
     ],
     "techniques": [
@@ -37,7 +37,7 @@
             "name": "Zero-Shot",
             "category": "Basic",
             "description": "Direct instruction without examples",
-            "template": "Instructions:\nRespond directly to the following request without preamble.\n\nRequest: [[CONTEXT]]",
+            "template": "### Instructions\nRespond directly to the following request without preamble.\n\n### Request\n[[CONTEXT]]",
             "recommendedConfig": {
                 "temperature": 0.7,
                 "topP": 1,
@@ -50,7 +50,7 @@
             "name": "Few-Shot",
             "category": "Basic",
             "description": "Provide examples to guide the model",
-            "template": "Instructions:\nFollow the pattern shown in the examples below.\n\nExamples:\n[[EXAMPLES]]\n\nTask:\n[[CONTEXT]]",
+            "template": "### Instructions\nFollow the pattern shown in the examples below.\n\n### Examples\n[[EXAMPLES]]\n\n### Task\n[[CONTEXT]]",
             "supportsExamples": true,
             "recommendedConfig": {
                 "temperature": 0.5,
@@ -64,7 +64,7 @@
             "name": "Chain of Thought (CoT)",
             "category": "Reasoning",
             "description": "Step-by-step reasoning before answering",
-            "template": "Instructions:\nThink through this step-by-step. First, explain your reasoning process, then provide the final answer.\n\nReasoning:\nLet's think step by step.\n1. [Analyze the request]\n2. [Break down the problem]\n3. [Solve each part]\n\nTask:\n[[CONTEXT]]",
+            "template": "### Instructions\nThink through this step-by-step. First, explain your reasoning process, then provide the final answer.\n\n### Reasoning Guidelines\n<reasoning_guidelines>\nLet's think step by step.\n1. [Analyze the request]\n2. [Break down the problem]\n3. [Solve each part]\n</reasoning_guidelines>\n\n### Task\n[[CONTEXT]]",
             "recommendedConfig": {
                 "temperature": 0.2,
                 "topP": 0.9,
@@ -90,7 +90,7 @@
             "name": "Mega Prompt",
             "category": "Advanced",
             "description": "Comprehensive instruction set for complex tasks",
-            "template": "### 1. ROLE & PERSONA ###\n[[ROLE]]\nYou are an expert in this field with decades of experience. You possess deep theoretical knowledge and practical application skills. Your tone should be professional, authoritative, yet accessible.\n\n### 2. CONTEXT & BACKGROUND ###\n[[CONTEXT]]\n\n### 3. CORE GOAL ###\n[[GOAL]]\n\n### 4. DETAILED CONSTRAINTS & GUIDELINES ###\n[[CONSTRAINTS]]\n- Maintain high accuracy and factual correctness.\n- Avoid generic advice; provide specific, actionable steps.\n- Use clear headings and bullet points for readability.\n\n### 5. OUTPUT FORMAT ###\n[[SCHEMA]]\n\n### 6. STEP-BY-STEP INSTRUCTIONS ###\nTo complete this task effectively, follow these steps:\n1.  **Analyze the Request**: deeply understand the user's intent and context.\n2.  **Structure the Response**: Plan the sections to ensure logical flow.\n3.  **Draft Content**: Write comprehensive content for each section, covering nuances and edge cases.\n4.  **Refine & Polish**: Review for clarity, tone, and adherence to constraints.\n5.  **Final Output**: Present the final result in the requested format.",
+            "template": "### 1. ROLE & PERSONA\n<role>[[ROLE]]</role>\nYou are an expert in this field with decades of experience. You possess deep theoretical knowledge and practical application skills. Your tone should be professional, authoritative, yet accessible.\n\n### 2. CONTEXT & BACKGROUND\n<context>[[CONTEXT]]</context>\n\n### 3. CORE GOAL\n<goal>[[GOAL]]</goal>\n\n### 4. DETAILED CONSTRAINTS & GUIDELINES\n<constraints>[[CONSTRAINTS]]</constraints>\n- Maintain high accuracy and factual correctness.\n- Avoid generic advice; provide specific, actionable steps.\n- Use clear headings and bullet points for readability.\n\n### 5. OUTPUT FORMAT\n<desired_schema>[[SCHEMA]]</desired_schema>\n\n### 6. STEP-BY-STEP INSTRUCTIONS\nTo complete this task effectively, follow these steps:\n1.  **Analyze the Request**: deeply understand the user's intent and context.\n2.  **Structure the Response**: Plan the sections to ensure logical flow.\n3.  **Draft Content**: Write comprehensive content for each section, covering nuances and edge cases.\n4.  **Refine & Polish**: Review for clarity, tone, and adherence to constraints.\n5.  **Final Output**: Present the final result in the requested format.",
             "supportsSchema": true,
             "recommendedConfig": {
                 "temperature": 0.3,
@@ -329,8 +329,25 @@
             "id": "json",
             "name": "JSON",
             "description": "Structured JSON output",
-            "template": "Output ONLY valid JSON. Do not include markdown formatting (```json). Follow this schema:\n[[SCHEMA]]",
-            "exampleSchema": "{\n  \"key\": \"value\",\n  \"items\": []\n}"
+            "template": "Output ONLY valid JSON. Do not include markdown formatting (```json). Follow this schema:\n<desired_schema>[[SCHEMA]]</desired_schema>",
+            "exampleSchema": "{\n  \"key\": \"value\",\n  \"items\": []\n}",
+            "presets": [
+                {
+                    "id": "structured_report",
+                    "name": "Structured Report (Mega)",
+                    "schema": "{\n  \"executive_summary\": \"string\",\n  \"analysis\": {\n    \"key_findings\": [\"string\"],\n    \"market_impact\": \"string\",\n    \"competitor_landscape\": [\n      { \"name\": \"string\", \"strengths\": [\"string\"], \"weaknesses\": [\"string\"] }\n    ]\n  },\n  \"strategy\": {\n    \"short_term_actions\": [\"string\"],\n    \"long_term_vision\": \"string\",\n    \"resources_required\": [\"string\"]\n  },\n  \"risks_and_mitigation\": [\n    { \"risk\": \"string\", \"severity\": \"high|medium|low\", \"mitigation\": \"string\" }\n  ],\n  \"conclusion\": \"string\"\n}"
+                },
+                {
+                    "id": "technical_spec",
+                    "name": "Technical Spec (Detailed)",
+                    "schema": "{\n  \"feature_name\": \"string\",\n  \"version\": \"1.0.0\",\n  \"architecture\": {\n    \"components\": [\"string\"],\n    \"data_flow\": \"string\",\n    \"dependencies\": [\"string\"]\n  },\n  \"api_endpoints\": [\n    {\n      \"method\": \"GET|POST\",\n      \"path\": \"/api/v1/...\",\n      \"request_body\": {},\n      \"response_200\": {}\n    }\n  ],\n  \"database_schema\": [\n    { \"table\": \"string\", \"columns\": [\"string\"] }\n  ]\n}"
+                },
+                {
+                    "id": "educational_course",
+                    "name": "Educational Course (Module)",
+                    "schema": "{\n  \"course_title\": \"string\",\n  \"module_title\": \"string\",\n  \"learning_objectives\": [\"string\"],\n  \"content\": {\n    \"introduction\": \"string\",\n    \"core_concepts\": [\n      { \"concept\": \"string\", \"explanation\": \"string\", \"analogy\": \"string\" }\n    ],\n    \"interactive_exercises\": [\n      { \"question\": \"string\", \"options\": [\"string\"], \"correct_answer\": \"string\" }\n    ]\n  },\n  \"summary\": \"string\"\n}"
+                }
+            ]
         },
         {
             "id": "table",

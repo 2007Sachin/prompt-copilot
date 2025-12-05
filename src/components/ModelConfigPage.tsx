@@ -79,10 +79,10 @@ export default function ModelConfigPage({ config, onConfigChange }: ModelConfigP
         } else {
             // Fallback: use hardcoded defaults
             const defaultModels: Record<string, string> = {
-                'openai': 'gpt-4o',
+                'openai': 'gpt-4o-2024-08-06',
                 'groq': 'llama-3.3-70b-versatile',
-                'anthropic': 'claude-3-opus-20240229',
-                'gemini': 'gemini-pro'
+                'anthropic': 'claude-3-5-sonnet-20241022',
+                'gemini': 'gemini-1.5-pro-002'
             };
             const defaultModel = defaultModels[config.modelConfig.provider];
             if (defaultModel && config.modelConfig.model !== defaultModel) {
@@ -143,8 +143,8 @@ export default function ModelConfigPage({ config, onConfigChange }: ModelConfigP
                                     <>
                                         {config.modelConfig.provider === 'openai' && (
                                             <>
-                                                <option value="gpt-4o">GPT-4o</option>
-                                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                                <option value="gpt-4o-2024-08-06">GPT-4o (Pinned)</option>
+                                                <option value="gpt-4o-mini-2024-07-18">GPT-4o Mini (Pinned)</option>
                                                 <option value="o1-preview">o1 Preview</option>
                                                 <option value="o1-mini">o1 Mini</option>
                                             </>
@@ -165,7 +165,7 @@ export default function ModelConfigPage({ config, onConfigChange }: ModelConfigP
                                         )}
                                         {config.modelConfig.provider === 'gemini' && (
                                             <>
-                                                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                                                <option value="gemini-1.5-pro-002">Gemini 1.5 Pro-002</option>
                                                 <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                                                 <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B</option>
                                             </>

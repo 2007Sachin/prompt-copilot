@@ -68,7 +68,12 @@ export async function savePromptSupabase(record: any, userId: string) {
         context: record.context ?? null,
         final_prompt: record.final_prompt ?? null,
         chat_history: record.chatHistory ?? [], // Persist chat history
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        // New fields for Workflows and Test Suites
+        type: record.type || 'single',
+        chain_config: record.chainSteps || null, // For workflows (array of ChainStep)
+        test_config: record.testCases ? { cases: record.testCases } : null, // For test suites
+        model_config: record.modelConfig || null // Store model configuration
     };
 
     const { data, error } = await supabase

@@ -10,7 +10,7 @@ interface ModelConfigProps {
 }
 
 interface Model {
-    id: string;
+    id: string; // Added 'id' based on DEFAULT_MODELS usage
     name: string;
     provider: string;
     description?: string;
@@ -19,17 +19,17 @@ interface Model {
 // Comprehensive fallback list of models available as of late 2024/2025
 const DEFAULT_MODELS: Record<string, Model[]> = {
     openai: [
-        { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', description: 'Flagship, high-intelligence model' },
-        { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', description: 'Fast, cost-efficient model' },
+        { id: 'gpt-4o-2024-08-06', name: 'GPT-4o (Pinned)', provider: 'openai', description: 'Stable Pinned Version: Flagship, high-intelligence model' },
+        { id: 'gpt-4o-mini-2024-07-18', name: 'GPT-4o Mini (Pinned)', provider: 'openai', description: 'Stable Pinned Version: Fast, cost-efficient model' },
         { id: 'o1-preview', name: 'o1 Preview', provider: 'openai', description: 'Advanced reasoning capability' },
         { id: 'o1-mini', name: 'o1 Mini', provider: 'openai', description: 'Fast reasoning capability' },
     ],
     anthropic: [
-        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (New)', provider: 'anthropic', description: 'Most intelligent & balanced model' },
-        { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'anthropic', description: 'Fastest, most compact model' },
+        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (New)', provider: 'anthropic', description: 'Stable Pinned Version: Most intelligent & balanced model' },
+        { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'anthropic', description: 'Stable Pinned Version: Fastest, most compact model' },
     ],
     groq: [
-        { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B', provider: 'groq', description: 'High performance open model' },
+        { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', provider: 'groq', description: 'Stable Pinned Version: High performance open model' },
         { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'groq', description: 'Ultra-fast open model' },
         { id: 'llama-3.2-90b-vision-preview', name: 'Llama 3.2 90B (Vision)', provider: 'groq', description: 'Multimodal vision capabilities' },
         { id: 'llama-3.2-11b-vision-preview', name: 'Llama 3.2 11B (Vision)', provider: 'groq', description: 'Efficient vision model' },
@@ -37,7 +37,7 @@ const DEFAULT_MODELS: Record<string, Model[]> = {
         { id: 'gemma2-9b-it', name: 'Gemma 2 9B', provider: 'groq', description: 'Google\'s open model' },
     ],
     gemini: [
-        { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'gemini', description: 'Complex reasoning, 2M context' },
+        { id: 'gemini-1.5-pro-002', name: 'Gemini 1.5 Pro-002', provider: 'gemini', description: 'Stable Pinned Version: Complex reasoning, 2M context' },
         { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'gemini', description: 'Fast, multimodal, 1M context' },
         { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash-8B', provider: 'gemini', description: 'High volume, lower intelligence' },
     ]
@@ -158,13 +158,13 @@ export default function ModelConfig({ config, onConfigChange, isOpen, onToggle, 
                     <input
                         type="range"
                         min="100"
-                        max="128000" 
+                        max="128000"
                         step="100"
                         value={config.modelConfig.maxTokens}
                         onChange={(e) => handleChange('maxTokens', parseInt(e.target.value))}
                         className="w-full h-1 bg-[#2A2A2A] rounded-lg appearance-none cursor-pointer accent-[#BB86FC]"
                     />
-                     <div className="flex justify-between text-[10px] text-[#666]">
+                    <div className="flex justify-between text-[10px] text-[#666]">
                         <span>100</span>
                         <span>128k</span>
                     </div>

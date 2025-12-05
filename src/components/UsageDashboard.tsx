@@ -35,14 +35,12 @@ export default function UsageDashboard({ user }: UsageDashboardProps) {
         if (!user?.id) return;
         load();
 
-        // Realtime subscription to inserts
         const channel = supabase
             .channel("public:usage_stats:user:" + user.id)
             .on(
                 "postgres_changes",
                 { event: "INSERT", schema: "public", table: "usage_stats", filter: `user_id=eq.${user.id}` },
                 (payload) => {
-                    // push new row
                     setData(prev => [...prev, payload.new]);
                     setSummary(prev => ({
                         totalPrompts: prev.totalPrompts + 1,
@@ -57,7 +55,6 @@ export default function UsageDashboard({ user }: UsageDashboardProps) {
         };
     }, [user]);
 
-    // Build chart data (map rows by date)
     // Group by date for the chart
     const chartData = data.reduce((acc: any[], curr) => {
         const date = new Date(curr.created_at).toLocaleDateString();
@@ -83,129 +80,129 @@ export default function UsageDashboard({ user }: UsageDashboardProps) {
     }, []).sort((a: any, b: any) => b.tokens - a.tokens);
 
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-6 animate-fade-in p-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
+                <div className="bg-surface border border-border rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#A0A0A0] text-sm font-bold uppercase tracking-wider">Total Prompts</h3>
-                        <Activity className="text-[#BB86FC]" size={20} />
+                        <h3 className="text-text-muted text-sm font-bold uppercase tracking-wider">Total Prompts</h3>
+                        <Activity className="text-primary" size={20} />
                     </div>
-                    <p className="text-3xl font-bold text-[#E0E0E0]">{summary.totalPrompts}</p>
-                    <p className="text-xs text-[#03DAC6] mt-2 flex items-center gap-1">
+                    <p className="text-3xl font-bold text-text-main">{summary.totalPrompts}</p>
+                    <p className="text-xs text-success mt-2 flex items-center gap-1">
                         <TrendingUp size={12} /> Lifetime
                     </p>
                 </div>
 
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
+                <div className="bg-surface border border-border rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#A0A0A0] text-sm font-bold uppercase tracking-wider">Total Tokens</h3>
-                        <Zap className="text-[#03DAC6]" size={20} />
+                        <h3 className="text-text-muted text-sm font-bold uppercase tracking-wider">Total Tokens</h3>
+                        <Zap className="text-success" size={20} />
                     </div>
-                    <p className="text-3xl font-bold text-[#E0E0E0]">{summary.totalTokens.toLocaleString()}</p>
-                    <p className="text-xs text-[#A0A0A0] mt-2">Across all models</p>
+                    <p className="text-3xl font-bold text-text-main">{summary.totalTokens.toLocaleString()}</p>
+                    <p className="text-xs text-text-muted mt-2">Across all models</p>
                 </div>
 
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
+                <div className="bg-surface border border-border rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#A0A0A0] text-sm font-bold uppercase tracking-wider">Avg. Quality</h3>
-                        <Database className="text-[#CF6679]" size={20} />
+                        <h3 className="text-text-muted text-sm font-bold uppercase tracking-wider">Avg. Quality</h3>
+                        <Database className="text-error" size={20} />
                     </div>
-                    <p className="text-3xl font-bold text-[#E0E0E0]">--</p>
-                    <p className="text-xs text-[#03DAC6] mt-2">Coming soon</p>
+                    <p className="text-3xl font-bold text-text-main">--</p>
+                    <p className="text-xs text-success mt-2">Coming soon</p>
                 </div>
 
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
+                <div className="bg-surface border border-border rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[#A0A0A0] text-sm font-bold uppercase tracking-wider">Saved Prompts</h3>
-                        <Activity className="text-[#3700B3]" size={20} />
+                        <h3 className="text-text-muted text-sm font-bold uppercase tracking-wider">Saved Prompts</h3>
+                        <Activity className="text-blue-400" size={20} />
                     </div>
-                    <p className="text-3xl font-bold text-[#E0E0E0]">--</p>
-                    <p className="text-xs text-[#A0A0A0] mt-2">Local Storage</p>
+                    <p className="text-3xl font-bold text-text-main">--</p>
+                    <p className="text-xs text-text-muted mt-2">Local Storage</p>
                 </div>
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Daily Usage Chart */}
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
-                    <h3 className="text-[#E0E0E0] font-semibold mb-6">Daily Token Consumption</h3>
+                <div className="bg-surface border border-border rounded-xl p-6">
+                    <h3 className="text-text-main font-semibold mb-6">Daily Token Consumption</h3>
                     <div className="h-[300px] w-full min-h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" vertical={false} />
-                                <XAxis dataKey="name" stroke="#A0A0A0" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#A0A0A0" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                                <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#252525', borderColor: '#2A2A2A', borderRadius: '8px', color: '#E0E0E0' }}
-                                    itemStyle={{ color: '#E0E0E0' }}
-                                    cursor={{ fill: '#2A2A2A' }}
+                                    contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
+                                    itemStyle={{ color: '#f4f4f5' }}
+                                    cursor={{ fill: '#27272a' }}
                                 />
-                                <Bar dataKey="tokens" fill="#BB86FC" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="tokens" fill="#6366f1" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Tokens by Model Chart */}
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
-                    <h3 className="text-[#E0E0E0] font-semibold mb-6">Tokens by Model</h3>
+                <div className="bg-surface border border-border rounded-xl p-6">
+                    <h3 className="text-text-main font-semibold mb-6">Tokens by Model</h3>
                     <div className="h-[300px] w-full min-h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart layout="vertical" data={modelData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" horizontal={false} />
-                                <XAxis type="number" stroke="#A0A0A0" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
-                                <YAxis dataKey="name" type="category" stroke="#A0A0A0" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
+                                <XAxis type="number" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                                <YAxis dataKey="name" type="category" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} width={100} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#252525', borderColor: '#2A2A2A', borderRadius: '8px', color: '#E0E0E0' }}
-                                    itemStyle={{ color: '#E0E0E0' }}
-                                    cursor={{ fill: '#2A2A2A' }}
+                                    contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
+                                    itemStyle={{ color: '#f4f4f5' }}
+                                    cursor={{ fill: '#27272a' }}
                                 />
-                                <Bar dataKey="tokens" fill="#03DAC6" radius={[0, 4, 4, 0]} />
+                                <Bar dataKey="tokens" fill="#10b981" radius={[0, 4, 4, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Recent Logs */}
-                <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
-                    <h3 className="text-[#E0E0E0] font-semibold mb-6">Recent Activity</h3>
+                <div className="bg-surface border border-border rounded-xl p-6">
+                    <h3 className="text-text-main font-semibold mb-6">Recent Activity</h3>
                     <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                         {data.slice().reverse().slice(0, 10).map((r) => (
-                            <div key={r.id} className="p-3 bg-[#252525] rounded-lg border border-[#2A2A2A] flex justify-between items-center">
+                            <div key={r.id} className="p-3 bg-surface-highlight rounded-lg border border-border flex justify-between items-center">
                                 <div>
-                                    <div className="text-sm font-medium text-[#E0E0E0]">{r.provider} / {r.model}</div>
-                                    <div className="text-xs text-[#A0A0A0]">{new Date(r.created_at).toLocaleString()}</div>
+                                    <div className="text-sm font-medium text-text-main">{r.provider} / {r.model}</div>
+                                    <div className="text-xs text-text-muted">{new Date(r.created_at).toLocaleString()}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-bold text-[#BB86FC]">{r.total_tokens}</div>
-                                    <div className="text-xs text-[#A0A0A0]">tokens</div>
+                                    <div className="text-sm font-bold text-primary">{r.total_tokens}</div>
+                                    <div className="text-xs text-text-muted">tokens</div>
                                 </div>
                             </div>
                         ))}
                         {data.length === 0 && (
                             <div className="text-center py-12 px-4">
-                                <div className="bg-[#252525] border border-[#2A2A2A] rounded-xl p-6 max-w-md mx-auto">
-                                    <Activity className="text-[#BB86FC] w-12 h-12 mx-auto mb-4 opacity-50" />
-                                    <h3 className="text-[#E0E0E0] font-semibold mb-2">No Usage Data Yet</h3>
-                                    <p className="text-[#A0A0A0] text-sm leading-relaxed">
+                                <div className="bg-surface-highlight border border-border rounded-xl p-6 max-w-md mx-auto">
+                                    <Activity className="text-primary w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <h3 className="text-text-main font-semibold mb-2">No Usage Data Yet</h3>
+                                    <p className="text-text-muted text-sm leading-relaxed">
                                         Usage statistics are tracked when you:
                                     </p>
-                                    <ul className="text-[#A0A0A0] text-sm mt-3 space-y-1.5 text-left">
+                                    <ul className="text-text-muted text-sm mt-3 space-y-1.5 text-left">
                                         <li className="flex items-start gap-2">
-                                            <span className="text-[#BB86FC] mt-0.5">•</span>
-                                            <span><strong className="text-[#E0E0E0]">Generate</strong> a prompt (uses LLM to score quality)</span>
+                                            <span className="text-primary mt-0.5">•</span>
+                                            <span><strong className="text-text-main">Generate</strong> a prompt (uses LLM to score quality)</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-[#03DAC6] mt-0.5">•</span>
-                                            <span><strong className="text-[#E0E0E0]">Run</strong> a prompt (executes against the LLM)</span>
+                                            <span className="text-success mt-0.5">•</span>
+                                            <span><strong className="text-text-main">Run</strong> a prompt (executes against the LLM)</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-amber-400 mt-0.5">•</span>
-                                            <span><strong className="text-[#E0E0E0]">APE</strong> generates variants (creates AI variations)</span>
+                                            <span><strong className="text-text-main">APE</strong> generates variants (creates AI variations)</span>
                                         </li>
                                     </ul>
-                                    <p className="text-[#666] text-xs mt-4 italic">
+                                    <p className="text-text-muted text-xs mt-4 italic">
                                         Note: "Save" only stores prompts in History, not Usage.
                                     </p>
                                 </div>

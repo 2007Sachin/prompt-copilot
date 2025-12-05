@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import Groq from "groq-sdk";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { SYSTEM_MODEL_CONFIG } from './constants';
 
 // Helper to calculate cost (mock rates)
 const COST_PER_1K_TOKENS = {
@@ -69,6 +70,7 @@ export const buildPrompt = (config: PromptConfig): string => {
 
 /**
  * Generate an optimized prompt using AI based on user inputs
+ * ALWAYS uses SYSTEM_MODEL_CONFIG (Groq top model) for consistent quality
  */
 export const generatePromptWithAI = async (
     config: PromptConfig,
@@ -99,11 +101,17 @@ Generate a ${lengthMode.name.toLowerCase()} prompt that:
 
 Return ONLY the optimized prompt text, nothing else.`;
 
-    const { provider, model } = config.modelConfig;
+    // Use SYSTEM_MODEL_CONFIG (Groq top model) for generation - ensures consistent quality
+    const systemConfig = SYSTEM_MODEL_CONFIG;
 
     try {
-        // Use the selected LLM to generate the prompt
-        const response = await runPromptLLM(metaPrompt, config.modelConfig, apiKeys);
+        // Verify Groq key is available for system operations
+        if (!apiKeys.groq_key) {
+            throw new Error("Groq API key is required for AI generation features. Please add it in API Settings.");
+        }
+
+        // Use the system top model for generation
+        const response = await runPromptLLM(metaPrompt, systemConfig, apiKeys);
 
         return {
             prompt: response.outputText.trim(),
@@ -115,13 +123,13 @@ Return ONLY the optimized prompt text, nothing else.`;
         return {
             prompt: buildPrompt(config),
             usage: {
-                provider,
-                model,
+                provider: systemConfig.provider,
+                model: systemConfig.model,
                 prompt_tokens: 0,
                 response_tokens: 0,
                 total_tokens: 0,
                 cost: 0,
-                metadata: { fallback: true }
+                metadata: { fallback: true, error: error.message }
             }
         };
     }
@@ -161,9 +169,18 @@ export const calculateHeuristicScore = (prompt: string, config: PromptConfig): P
     };
 };
 
+/**
+ * APE (Automatic Prompt Engineering) - Generate prompt variants
+ * ALWAYS uses SYSTEM_MODEL_CONFIG for consistent, high-quality variants
+ */
 export const apeGenerateVariants = async (config: PromptConfig, apiKeys: APIKeys): Promise<APEVariant[]> => {
     const basePrompt = buildPrompt(config);
     const variants: APEVariant[] = [];
+
+    // Verify Groq key is available for system operations
+    if (!apiKeys.groq_key) {
+        throw new Error("Groq API key is required for APE features. Please add it in API Settings.");
+    }
 
     const styles = [
         {
@@ -180,6 +197,9 @@ export const apeGenerateVariants = async (config: PromptConfig, apiKeys: APIKeys
         }
     ];
 
+    // Use SYSTEM_MODEL_CONFIG for all APE generations
+    const systemConfig = SYSTEM_MODEL_CONFIG;
+
     for (let i = 0; i < styles.length; i++) {
         const style = styles[i];
         const metaPrompt = `You are an expert prompt engineer.
@@ -194,7 +214,7 @@ ${basePrompt}
 Return ONLY the rewritten prompt text. Do not include any conversational filler.`;
 
         try {
-            const { outputText } = await runPromptLLM(metaPrompt, config.modelConfig, apiKeys);
+            const { outputText } = await runPromptLLM(metaPrompt, systemConfig, apiKeys);
             const score = calculateHeuristicScore(outputText, config);
 
             variants.push({
@@ -389,9 +409,13 @@ export async function runPromptLLM(
     }
 }
 
+/**
+ * Score a prompt using AI evaluation
+ * ALWAYS uses SYSTEM_MODEL_CONFIG for consistent scoring baseline
+ */
 export async function scorePromptLLM(
     finalPrompt: string,
-    modelConfig: ModelConfig,
+    _modelConfig: ModelConfig, // Ignored - we use SYSTEM_MODEL_CONFIG
     apiKeys: APIKeys
 ): Promise<{ score: PromptScore; usage: UsageData }> {
     const scoringPrompt = `You are a professional prompt engineer. Evaluate the quality of the following prompt.
@@ -414,12 +438,13 @@ Prompt to evaluate:
 ${finalPrompt}
 """`;
 
-    const { provider, model } = modelConfig;
+    // Use SYSTEM_MODEL_CONFIG for consistent scoring
+    const systemConfig = SYSTEM_MODEL_CONFIG;
     const { getLLMClient } = await import('./llmClients');
 
     let usage: UsageData = {
-        provider,
-        model,
+        provider: systemConfig.provider,
+        model: systemConfig.model,
         prompt_tokens: 0,
         response_tokens: 0,
         total_tokens: 0,
@@ -428,83 +453,25 @@ ${finalPrompt}
     };
 
     try {
-        if (provider === "openai") {
-            const apiKey = apiKeys.openai_key;
-            if (!apiKey) throw new Error("OpenAI API key required for scoring");
+        // Always use Groq for scoring (SYSTEM_MODEL_CONFIG)
+        const apiKey = apiKeys.groq_key;
+        if (!apiKey) throw new Error("Groq API key is required for scoring. Please add it in API Settings.");
 
-            const client = getLLMClient(provider, apiKey) as any;
-            const response = await client.chat.completions.create({
-                model,
-                temperature: 0,
-                messages: [{ role: "user", content: scoringPrompt }]
-            });
-            const content = response.choices[0].message.content || "{}";
+        const client = getLLMClient('groq', apiKey) as any;
+        const response = await client.chat.completions.create({
+            model: systemConfig.model,
+            temperature: 0,
+            messages: [{ role: "user", content: scoringPrompt }]
+        });
+        const content = response.choices[0].message.content || "{}";
 
-            if (response.usage) {
-                usage.prompt_tokens = response.usage.prompt_tokens;
-                usage.response_tokens = response.usage.completion_tokens;
-                usage.total_tokens = response.usage.total_tokens;
-            }
-
-            return { score: JSON.parse(content), usage };
+        if (response.usage) {
+            usage.prompt_tokens = response.usage.prompt_tokens;
+            usage.response_tokens = response.usage.completion_tokens;
+            usage.total_tokens = response.usage.total_tokens;
         }
 
-        if (provider === "groq") {
-            const apiKey = apiKeys.groq_key;
-            if (!apiKey) throw new Error("Groq API key required for scoring");
-
-            const client = getLLMClient(provider, apiKey) as any;
-            const response = await client.chat.completions.create({
-                model,
-                temperature: 0,
-                messages: [{ role: "user", content: scoringPrompt }]
-            });
-            const content = response.choices[0].message.content || "{}";
-
-            if (response.usage) {
-                usage.prompt_tokens = response.usage.prompt_tokens;
-                usage.response_tokens = response.usage.completion_tokens;
-                usage.total_tokens = response.usage.total_tokens;
-            }
-
-            return { score: JSON.parse(content), usage };
-        }
-
-        if (provider === "anthropic") {
-            const apiKey = apiKeys.anthropic_key;
-            if (!apiKey) throw new Error("Anthropic API key required for scoring");
-
-            const client = getLLMClient(provider, apiKey) as any;
-            const response = await client.messages.create({
-                model,
-                temperature: 0,
-                max_tokens: 200,
-                messages: [{ role: "user", content: scoringPrompt }]
-            });
-            const content = response.content[0].text || "{}";
-
-            if (response.usage) {
-                usage.prompt_tokens = response.usage.input_tokens;
-                usage.response_tokens = response.usage.output_tokens;
-                usage.total_tokens = response.usage.input_tokens + response.usage.output_tokens;
-            }
-
-            return { score: JSON.parse(content), usage };
-        }
-
-        if (provider === "gemini") {
-            const apiKey = apiKeys.google_key;
-            if (!apiKey) throw new Error("Google Gemini API key required for scoring");
-
-            const client = getLLMClient(provider, apiKey) as any;
-            const genModel = client.getGenerativeModel({ model });
-            const response = await genModel.generateContent(scoringPrompt);
-            const content = response.response.text() || "{}";
-            // Gemini usage tracking varies
-            return { score: JSON.parse(content), usage };
-        }
-
-        throw new Error(`Unknown provider: ${provider}`);
+        return { score: JSON.parse(content), usage };
     } catch (error: any) {
         console.error("Scoring error:", error);
         throw new Error(error.message || "Failed to score prompt");

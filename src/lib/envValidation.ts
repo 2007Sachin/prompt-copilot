@@ -27,8 +27,9 @@ class EnvironmentError extends Error {
 
 export function validateEnvironment(): EnvConfig {
     const errors: string[] = [];
+    const warnings: string[] = [];
 
-    // Required variables
+    // Required variables (Core infrastructure)
     const requiredVars = {
         CLERK_PUBLISHABLE_KEY: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
         SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
@@ -42,6 +43,16 @@ export function validateEnvironment(): EnvConfig {
         }
     }
 
+    // GROQ API Key is REQUIRED for system AI operations
+    // All prompt generation, scoring, and APE features depend on it
+    const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+    if (!groqKey || groqKey.trim() === '') {
+        warnings.push(
+            '⚠️ VITE_GROQ_API_KEY is not configured. AI generation features require a Groq API key.\n' +
+            '   Users must add their own key in Settings > API Keys.'
+        );
+    }
+
     if (errors.length > 0) {
         throw new EnvironmentError(
             `Environment configuration errors:\n${errors.join('\n')}\n\nPlease check your .env file.`
@@ -51,7 +62,6 @@ export function validateEnvironment(): EnvConfig {
     // Log warnings for missing optional API keys
     const optionalKeys = {
         OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY,
-        GROQ_API_KEY: import.meta.env.VITE_GROQ_API_KEY,
         ANTHROPIC_API_KEY: import.meta.env.VITE_ANTHROPIC_API_KEY,
         GEMINI_API_KEY: import.meta.env.VITE_GEMINI_API_KEY,
     };
@@ -70,12 +80,17 @@ export function validateEnvironment(): EnvConfig {
         );
     }
 
+    // Log Groq warning if present
+    if (warnings.length > 0) {
+        warnings.forEach(w => console.warn(w));
+    }
+
     return {
         CLERK_PUBLISHABLE_KEY: requiredVars.CLERK_PUBLISHABLE_KEY,
         SUPABASE_URL: requiredVars.SUPABASE_URL,
         SUPABASE_ANON_KEY: requiredVars.SUPABASE_ANON_KEY,
         OPENAI_API_KEY: optionalKeys.OPENAI_API_KEY,
-        GROQ_API_KEY: optionalKeys.GROQ_API_KEY,
+        GROQ_API_KEY: groqKey, // Now tracked separately as critical
         ANTHROPIC_API_KEY: optionalKeys.ANTHROPIC_API_KEY,
         GEMINI_API_KEY: optionalKeys.GEMINI_API_KEY,
     };

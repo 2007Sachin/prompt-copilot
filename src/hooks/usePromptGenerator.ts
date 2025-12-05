@@ -10,6 +10,8 @@ interface UsePromptGeneratorProps {
     setPromptScore: (score: PromptScore | null) => void;
     setApeVariants: (variants: APEVariant[] | null) => void;
     showToastMessage: (type: 'success' | 'error', message: string) => void;
+    testValues?: string[];
+    setTestResults?: (results: string[] | null) => void;
 }
 
 export const usePromptGenerator = ({
@@ -19,7 +21,9 @@ export const usePromptGenerator = ({
     setGeneratedPrompt,
     setPromptScore,
     setApeVariants,
-    showToastMessage
+    showToastMessage,
+    testValues,
+    setTestResults
 }: UsePromptGeneratorProps) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isScoring, setIsScoring] = useState(false);
@@ -52,6 +56,7 @@ export const usePromptGenerator = ({
         }
 
         setIsGenerating(true);
+        if (setTestResults) setTestResults(null);
 
         try {
             // Use AI to generate the optimized prompt
@@ -87,6 +92,45 @@ export const usePromptGenerator = ({
                 } catch (saveErr: any) {
                     // Saving is not critical
                 }
+            }
+
+            // Run Test Cases if present
+            if (testValues && testValues.some(v => v.trim().length > 0) && setTestResults) {
+                console.log('🧪 Running Test Cases...');
+                const { runPromptLLM } = await import('../lib/promptEngine');
+                const results: string[] = [];
+
+                for (const testInput of testValues) {
+                    if (!testInput.trim()) {
+                        results.push('');
+                        continue;
+                    }
+
+                    try {
+                        // Construct the test prompt
+                        // If the prompt has a placeholder, use it. Otherwise append.
+                        let testPrompt = prompt;
+                        if (testPrompt.includes('[[CONTEXT]]')) {
+                            testPrompt = testPrompt.replace('[[CONTEXT]]', testInput);
+                        } else if (testPrompt.includes('{{CONTEXT}}')) {
+                            testPrompt = testPrompt.replace('{{CONTEXT}}', testInput);
+                        } else if (testPrompt.includes('<context>')) {
+                            // Regex replace for XML tag content if needed, but simple replace might be safer for now
+                            // or just append if not found
+                            testPrompt = testPrompt.replace(/<context>[\s\S]*?<\/context>/, `<context>\n${testInput}\n</context>`);
+                        } else {
+                            // Default: Append as input
+                            testPrompt = `${testPrompt}\n\nInput:\n${testInput}`;
+                        }
+
+                        const { outputText } = await runPromptLLM(testPrompt, config.modelConfig, apiKeys);
+                        results.push(outputText);
+                    } catch (err: any) {
+                        console.error("Test case failed:", err);
+                        results.push(`Error: ${err.message}`);
+                    }
+                }
+                setTestResults(results);
             }
 
             // Score the AI-generated prompt

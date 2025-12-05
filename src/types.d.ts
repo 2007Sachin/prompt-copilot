@@ -27,12 +27,19 @@ export interface LengthMode {
     recommendedConfig?: Partial<ModelConfig>;
 }
 
+export interface SchemaPreset {
+    id: string;
+    name: string;
+    schema: string;
+}
+
 export interface OutputFormat {
     id: string;
     name: string;
     description: string;
     template: string;
     exampleSchema?: string;
+    presets?: SchemaPreset[];
 }
 
 export interface ModelConfig {
@@ -64,6 +71,11 @@ export interface PromptConfig {
     modelConfig: ModelConfig;
 }
 
+export interface ChainStep extends PromptConfig {
+    id: string;
+    stepName: string;
+}
+
 export interface PromptRecord {
     id: string;
     name: string;
@@ -77,6 +89,14 @@ export interface PromptRecord {
     finalPrompt: string;
     chatHistory?: { role: 'user' | 'assistant'; content: string; timestamp: number }[];
     createdAt: number;
+    // Workflow support
+    type?: 'single' | 'workflow';
+    chainSteps?: ChainStep[];
+    // Test suite support
+    testCases?: string[];
+    // DB mapping fields (snake_case for Supabase)
+    chain_config?: any;
+    test_config?: any;
 }
 
 export interface PromptScore {

@@ -1,81 +1,243 @@
 @import "tailwindcss";
 
+/* ============================================
+   SOFT MATTE DESIGN SYSTEM
+   Zinc & Indigo - Clean, Professional SaaS
+   ============================================ */
+
 @theme {
-    --font-sans: Inter, system-ui, -apple-system, sans-serif;
+    /* Typography */
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, monospace;
 
-    --color-primary-50: #f0f9ff;
-    --color-primary-100: #e0f2fe;
-    --color-primary-200: #bae6fd;
-    --color-primary-300: #7dd3fc;
-    --color-primary-400: #38bdf8;
-    --color-primary-500: #0ea5e9;
-    --color-primary-600: #0284c7;
-    --color-primary-700: #0369a1;
-    --color-primary-800: #075985;
-    --color-primary-900: #0c4a6e;
-
-    --color-accent-50: #faf5ff;
-    --color-accent-100: #f3e8ff;
-    --color-accent-200: #e9d5ff;
-    --color-accent-300: #d8b4fe;
-    --color-accent-400: #c084fc;
-    --color-accent-500: #a855f7;
-    --color-accent-600: #9333ea;
-    --color-accent-700: #7e22ce;
-    --color-accent-800: #6b21a8;
-    --color-accent-900: #581c87;
-
-    --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    --animate-bounce-slow: bounce 2s infinite;
+    /* Semantic Colors */
+    --color-background: #09090b;
+    --color-surface: #18181b;
+    --color-surface-highlight: #27272a;
+    --color-border: #27272a;
+    --color-text-main: #f4f4f5;
+    --color-text-muted: #a1a1aa;
+    --color-primary: #6366f1;
+    --color-primary-hover: #818cf8;
+    --color-success: #10b981;
+    --color-error: #f43f5e;
+    --color-warning: #f59e0b;
 }
+
+/* ============================================
+   BASE LAYER
+   ============================================ */
 
 @layer base {
+
+    /* Body - Apply semantic background & text */
     body {
-        @apply bg-gray-900 text-gray-100 antialiased;
+        @apply bg-background text-text-main;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        min-height: 100vh;
     }
 
-    /* Custom Scrollbar - Dark Mode */
+    /* Selection */
+    ::selection {
+        background: rgba(99, 102, 241, 0.3);
+        color: #fff;
+    }
+
+    /* Minimal Scrollbar */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        @apply bg-transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        @apply bg-gray-700 rounded-full hover:bg-gray-600 transition-colors;
-    }
-}
-
-@layer components {
-    .btn-primary {
-        @apply px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-
-    .btn-secondary {
-        @apply px-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-
-    .input-field {
-        @apply w-full px-3 py-2 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all;
-    }
-
-    .label-text {
-        @apply block text-sm font-medium text-gray-400 mb-1;
-    }
-
-    .card {
-        @apply bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-6;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
         height: 6px;
     }
 
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-zinc-800 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-zinc-700;
+    }
+
+    /* Focus visible */
+    :focus-visible {
+        @apply outline-2 outline-primary outline-offset-2;
+    }
+}
+
+/* ============================================
+   COMPONENT LAYER
+   ============================================ */
+
+@layer components {
+
+    /* Card */
+    .card {
+        @apply bg-surface border border-border rounded-2xl;
+        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Input */
+    .input {
+        @apply w-full px-4 py-3 bg-surface-highlight border border-border rounded-xl;
+        @apply text-text-main text-sm placeholder-text-muted;
+        @apply hover:border-zinc-600 focus:border-primary focus:ring-2 focus:ring-primary/15;
+        @apply transition-all duration-150 outline-none;
+    }
+
+    /* Textarea */
+    .textarea {
+        @apply w-full px-4 py-4 bg-surface-highlight border border-border rounded-xl;
+        @apply text-text-main text-sm placeholder-text-muted;
+        @apply hover:border-zinc-600 focus:border-primary focus:ring-2 focus:ring-primary/15;
+        @apply transition-all duration-150 outline-none resize-y min-h-[120px] leading-relaxed;
+    }
+
+    /* Select */
+    .select {
+        @apply w-full px-4 py-3 pr-10 bg-surface-highlight border border-border rounded-xl;
+        @apply text-text-main text-sm cursor-pointer appearance-none;
+        @apply hover:border-zinc-600 focus:border-primary focus:ring-2 focus:ring-primary/15;
+        @apply transition-all duration-150 outline-none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+    }
+
+    /* Primary Button */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3;
+        @apply bg-primary text-white font-semibold text-sm rounded-xl;
+        @apply hover:bg-primary-hover hover:-translate-y-0.5;
+        @apply active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+        @apply transition-all duration-150;
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3;
+        @apply bg-surface-highlight text-text-main font-medium text-sm rounded-xl;
+        @apply border border-border hover:border-zinc-600 hover:bg-zinc-700;
+        @apply hover:-translate-y-0.5 active:translate-y-0;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
+        @apply transition-all duration-150;
+    }
+
+    /* Ghost Button */
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3;
+        @apply bg-transparent text-text-muted font-medium text-sm rounded-xl;
+        @apply hover:bg-surface-highlight hover:text-text-main;
+        @apply transition-all duration-150;
+    }
+
+    /* Label */
+    .label {
+        @apply block text-xs font-medium text-text-muted uppercase tracking-wider mb-2;
+    }
+
+    /* Badge */
+    .badge {
+        @apply inline-flex items-center gap-1 px-2.5 py-1;
+        @apply bg-surface-highlight text-text-muted text-xs font-medium;
+        @apply rounded-full border border-border;
+    }
+
+    .badge-primary {
+        @apply bg-primary/10 text-primary border-primary/20;
+    }
+
+    .badge-success {
+        @apply bg-success/10 text-success border-success/20;
+    }
+
+    .badge-error {
+        @apply bg-error/10 text-error border-error/20;
+    }
+
+    /* Code Block */
+    .code-block {
+        @apply bg-zinc-950 border border-border rounded-xl overflow-hidden;
+    }
+
+    .code-block-header {
+        @apply flex items-center justify-between px-4 py-3 bg-surface border-b border-border;
+    }
+
+    .code-block-content {
+        @apply p-4 font-mono text-sm text-zinc-300 leading-relaxed overflow-x-auto;
+    }
+
+    /* Divider */
+    .divider {
+        @apply h-px bg-border;
+    }
+
+    /* Custom Scrollbar (for specific elements) */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        @apply bg-gray-600 rounded-full;
+        @apply bg-zinc-800 rounded-full;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-zinc-700;
+    }
+}
+
+/* ============================================
+   UTILITIES LAYER
+   ============================================ */
+
+@layer utilities {
+
+    /* Text gradient */
+    .text-gradient {
+        @apply bg-gradient-to-r from-primary-hover via-primary to-primary bg-clip-text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Animations */
+    .animate-fade-in {
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
